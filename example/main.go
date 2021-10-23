@@ -24,7 +24,7 @@ func main() {
 					var points []seekpo.Point
 					for i := 1; i <= 24; i++ {
 						point := seekpo.Point{
-							Timestamp: time.Date(2021, 10, 22, 00, 00, 00, 00, time.UTC),
+							Timestamp: time.Date(2021, 10, 22, i, 0, 0, 0, time.UTC),
 							Value:     float32(rand.Intn(1500)) / 100,
 							Status:    0,
 						}
@@ -38,5 +38,4 @@ func main() {
 	if err := writer.WriteSeries(context.Background(), series); err != nil {
 		log.Printf("[ERROR] write series failed: %s", err)
 	}
-	time.Sleep(time.Second)
 }

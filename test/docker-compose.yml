@@ -1,0 +1,38 @@
+version: '3'
+services:
+  influxdb:
+    image: influxdb:2.0-alpine
+    ports:
+      - '8086:8086'
+    # volumes:
+    # # Mount for influxdb data directory
+    #   - ./influxdb/data:/var/lib/influxdb2
+    # # Mount for influxdb configuration
+    #   - ./influxdb/config/:/etc/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG={INFLUXDB_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET={INFLUXDB_BUCKET}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
+      # - INFLUXDB_HTTP_FLUX_ENABLED=true
+  chronograf:
+    image: chronograf:1.9-alpine
+    ports:
+      - '127.0.0.1:8888:8888'
+    # volumes:
+    # # Mount for chronograf database
+    #   - ./chronograf/data/:/var/lib/chronograf
+    depends_on:
+      - influxdb
+    environment:
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_USERNAME=${INFLUXDB_USERNAME}
+      - INFLUXDB_PASSWORD=${INFLUXDB_PASSWORD}
+      - INFLUXDB_ORG=${INFLUXDB_ORG}
+      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN}
+# volumes:
+#   influxdb-config:
+#   influxdb-storage:
+#   chronograf-storage:
