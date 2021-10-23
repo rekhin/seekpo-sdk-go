@@ -11,17 +11,20 @@ import (
 )
 
 type SeriesWriter struct {
-	client influxdb2.Client
+	client      influxdb2.Client
+	org, bucket string
 }
 
-func NewSeriesWriter(client influxdb2.Client) *SeriesWriter {
+func NewSeriesWriter(client influxdb2.Client, org, bucket string) *SeriesWriter {
 	return &SeriesWriter{
 		client: client,
+		org:    org,
+		bucket: bucket,
 	}
 }
 
 func (w *SeriesWriter) WriteSeries(ctx context.Context, series seekpo.Series) error {
-	writeAPI := w.client.WriteAPIBlocking("my-org", "my-bucket")
+	writeAPI := w.client.WriteAPIBlocking(w.org, w.bucket)
 	var points []*write.Point
 	for i := range series.Sets {
 		for j := range series.Sets[i].Points {

@@ -1,5 +1,7 @@
-version: '3'
+version: '3.7'
+
 services:
+
   influxdb:
     image: influxdb:2.0-alpine
     ports:
@@ -17,6 +19,7 @@ services:
       - DOCKER_INFLUXDB_INIT_BUCKET={INFLUXDB_BUCKET}
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
       # - INFLUXDB_HTTP_FLUX_ENABLED=true
+
   chronograf:
     image: chronograf:1.9-alpine
     ports:
@@ -32,6 +35,7 @@ services:
       - INFLUXDB_PASSWORD=${INFLUXDB_PASSWORD}
       - INFLUXDB_ORG=${INFLUXDB_ORG}
       - INFLUXDB_TOKEN=${INFLUXDB_TOKEN}
+      
 # volumes:
 #   influxdb-config:
 #   influxdb-storage:
