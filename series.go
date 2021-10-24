@@ -6,18 +6,27 @@ import (
 )
 
 type Series struct {
-	Sets []Set
+	Measurement Measurement
+	Sets        []Set
 }
 
+type Measurement int
+
+//go:generate stringer -type=Measurement -trimprefix=Measurement
+const (
+	MeasurementValue Measurement = iota
+	MeasurementStatus
+)
+
 type Set struct {
-	Code   Code
+	Field  Field
 	Points []Point
 }
 
 type Point struct {
 	Timestamp time.Time
 	Value     Value
-	Status    Status
+	// Status    Status
 }
 
 // type BoolPoint struct {
@@ -35,7 +44,7 @@ type SeriesWriter interface {
 }
 
 type LastSeriesReader interface {
-	ReadLastSeries(context.Context, []Code) (Series, error)
+	ReadLastSeries(context.Context, []Field) (Series, error)
 }
 
 type Range struct {
@@ -44,5 +53,5 @@ type Range struct {
 }
 
 type SeriesReader interface {
-	ReadSeries(context.Context, []Code, Range) (Series, error)
+	ReadSeries(context.Context, []Field, Range) (Series, error)
 }

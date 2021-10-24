@@ -1,12 +1,12 @@
 package seekpo
 
 type Tag struct {
-	Code Code
-	Name string
-	Unit string
-	Type Type
+	Field Field
+	Name  string
+	Unit  string
+	Type  Type
 }
 
-type Code string
+type Field = string
 
 type Type int

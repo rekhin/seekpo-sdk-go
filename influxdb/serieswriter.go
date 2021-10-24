@@ -11,27 +11,28 @@ import (
 )
 
 type SeriesWriter struct {
-	client      influxdb2.Client
-	org, bucket string
+	client     influxdb2.Client
+	orgName    string
+	bucketName string
 }
 
 func NewSeriesWriter(client influxdb2.Client, org, bucket string) *SeriesWriter {
 	return &SeriesWriter{
-		client: client,
-		org:    org,
-		bucket: bucket,
+		client:     client,
+		orgName:    org,
+		bucketName: bucket,
 	}
 }
 
 func (w *SeriesWriter) WriteSeries(ctx context.Context, series seekpo.Series) error {
-	writeAPI := w.client.WriteAPIBlocking(w.org, w.bucket)
-	var points []*write.Point
+	writeAPI := w.client.WriteAPIBlocking(w.orgName, w.bucketName)
+	points := []*write.Point{}
 	for i := range series.Sets {
 		for j := range series.Sets[i].Points {
-			point := influxdb2.NewPointWithMeasurement("tag").
-				AddTag("code", string(series.Sets[i].Code)).
-				AddField("value", series.Sets[i].Points[j].Value).
-				AddField("status", series.Sets[i].Points[j].Status).
+			point := influxdb2.NewPointWithMeasurement(series.Measurement).
+				// AddTag("measurement", series.Sets[i].Measurement).
+				AddField(series.Sets[i].Field, series.Sets[i].Points[j].Value).
+				// AddField("status", series.Sets[i].Points[j].Status).
 				SetTime(series.Sets[i].Points[j].Timestamp)
 			points = append(points, point)
 		}
