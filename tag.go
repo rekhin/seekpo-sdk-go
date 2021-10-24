@@ -1,12 +1,10 @@
 package seekpo
 
+import "github.com/google/uuid"
+
 type Tag struct {
-	Field Field
-	Name  string
-	Unit  string
-	Type  Type
+	ID   uuid.UUID
+	Name string
+	Unit string
+	Type Type
 }
-
-type Field = string
-
-type Type int

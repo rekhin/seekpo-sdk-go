@@ -32,7 +32,7 @@ func (w *SeriesWriter) WriteSeries(ctx context.Context, series seekpo.Series) er
 	for i := range series.Sets {
 		for j := range series.Sets[i].Points {
 			point := influxdb2.NewPointWithMeasurement(series.Measurement).
-				AddField(series.Sets[i].Field, series.Sets[i].Points[j].Value).
+				AddField(series.Sets[i].ID.String(), series.Sets[i].Points[j].Value).
 				// AddField("status", series.Sets[i].Points[j].Status).
 				SetTime(series.Sets[i].Points[j].Timestamp)
 			points = append(points, point)

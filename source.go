@@ -1,6 +1,8 @@
 package seekpo
 
+import "github.com/google/uuid"
+
 type Source struct {
-	Field Field
+	Field uuid.UUID
 	Name  string
 }
