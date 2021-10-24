@@ -18,6 +18,8 @@ type SeriesReader struct {
 	bucketName string
 }
 
+var _ seekpo.SeriesReader = new(SeriesReader)
+
 func NewSeriesReader(client influxdb2.Client, org, bucket string) *SeriesReader {
 	return &SeriesReader{
 		client:     client,
@@ -45,15 +47,13 @@ func (r *SeriesReader) ReadSeries(
 		if result.TableChanged() {
 			i++
 			sets[i].Field = result.Record().Field()
-			// fmt.Printf("table: %s\n", result.TableMetadata().String())
 		}
 		point := seekpo.Point{
 			Timestamp: result.Record().Time(),
-			Value:     result.Record().Value,
+			Value:     result.Record().Value(),
 			// Status:    seekpo.Status(result.Record().Field()),
 		}
 		sets[i].Points = append(sets[i].Points, point)
-		// fmt.Printf("row: %s\n", result.Record().String())
 	}
 	if result.Err() != nil {
 		return seekpo.Series{}, fmt.Errorf("next failed: %s", result.Err())
@@ -81,6 +81,9 @@ func formatQuery(
 }
 
 func formatFilter(tag string, items []string) string {
+	if len(items) == 0 {
+		return ""
+	}
 	conditions := formatConditions(tag, items)
 	filter := fmt.Sprintf(`|> filter(fn: (r) => %s)`, strings.Join(conditions, " or "))
 	return filter

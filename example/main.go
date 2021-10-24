@@ -53,7 +53,7 @@ func initDatabase(ctx context.Context, client influxdb2.Client) error {
 func writeSeries(ctx context.Context, client influxdb2.Client) error {
 	writer := influxdb.NewSeriesWriter(client, orgName, bucketName)
 	series := seekpo.Series{
-		Measurement: seekpo.MeasurementValue,
+		Measurement: "example",
 		Sets: []seekpo.Set{
 			{
 				Field:  "temperature",
@@ -92,7 +92,7 @@ func readSeries(ctx context.Context, client influxdb2.Client) error {
 			Start: time.Date(2021, 10, 22, 0, 0, 0, 0, time.UTC),
 			End:   time.Date(2021, 10, 22, 2, 0, 0, 0, time.UTC),
 		},
-		[]seekpo.Measurement{seekpo.MeasurementValue},
+		[]seekpo.Measurement{},
 		[]seekpo.Field{"temperature"},
 	)
 	if err != nil {

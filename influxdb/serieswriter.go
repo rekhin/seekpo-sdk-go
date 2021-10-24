@@ -16,6 +16,8 @@ type SeriesWriter struct {
 	bucketName string
 }
 
+var _ seekpo.SeriesWriter = new(SeriesWriter)
+
 func NewSeriesWriter(client influxdb2.Client, org, bucket string) *SeriesWriter {
 	return &SeriesWriter{
 		client:     client,
@@ -30,7 +32,6 @@ func (w *SeriesWriter) WriteSeries(ctx context.Context, series seekpo.Series) er
 	for i := range series.Sets {
 		for j := range series.Sets[i].Points {
 			point := influxdb2.NewPointWithMeasurement(series.Measurement).
-				// AddTag("measurement", series.Sets[i].Measurement).
 				AddField(series.Sets[i].Field, series.Sets[i].Points[j].Value).
 				// AddField("status", series.Sets[i].Points[j].Status).
 				SetTime(series.Sets[i].Points[j].Timestamp)

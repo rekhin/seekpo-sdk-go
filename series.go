@@ -10,13 +10,7 @@ type Series struct {
 	Sets        []Set
 }
 
-type Measurement int
-
-//go:generate stringer -type=Measurement -trimprefix=Measurement
-const (
-	MeasurementValue Measurement = iota
-	MeasurementStatus
-)
+type Measurement = string
 
 type Set struct {
 	Field  Field
@@ -26,18 +20,7 @@ type Set struct {
 type Point struct {
 	Timestamp time.Time
 	Value     Value
-	// Status    Status
 }
-
-// type BoolPoint struct {
-// 	Timestamp time.Time
-// 	Bool      bool
-// 	Status    Status
-// }
-
-type Value interface{}
-
-type Status uint32
 
 type SeriesWriter interface {
 	WriteSeries(context.Context, Series) error
@@ -53,5 +36,5 @@ type Range struct {
 }
 
 type SeriesReader interface {
-	ReadSeries(context.Context, []Field, Range) (Series, error)
+	ReadSeries(context.Context, Range, []Measurement, []Field) (Series, error)
 }
