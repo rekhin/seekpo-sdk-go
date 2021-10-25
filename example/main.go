@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/google/uuid"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/rekhin/seekpo-sdk-go"
 	"github.com/rekhin/seekpo-sdk-go/influxdb"
@@ -53,16 +52,18 @@ func initDatabase(ctx context.Context, client influxdb2.Client) error {
 
 var tags = []seekpo.Tag{
 	{
-		ID:   uuid.New(),
-		Name: "Temperature",
-		Unit: "°C",
-		Type: seekpo.TypeFloat32,
+		Measurement: "К1ТВ1",
+		Code:        "temperature",
+		Name:        "Температура",
+		Unit:        "°C",
+		Type:        seekpo.TypeFloat32,
 	},
 	{
-		ID:   uuid.New(),
-		Name: "Density",
-		Unit: "kg/m3",
-		Type: seekpo.TypeFloat32,
+		Measurement: "К1ТВ1",
+		Code:        "pressure",
+		Name:        "Давление",
+		Unit:        "mm Hg",
+		Type:        seekpo.TypeFloat32,
 	},
 }
 
@@ -71,14 +72,16 @@ func writeSeries(ctx context.Context, client influxdb2.Client) error {
 	sets := make([]seekpo.Set, len(tags))
 	for i := range tags {
 		set := seekpo.Set{
-			ID:     tags[i].ID,
-			Points: generatePoints(),
+			Measurement: tags[i].Measurement,
+			Code:        tags[i].Code,
+			Unit:        tags[i].Unit,
+			Type:        tags[i].Type,
+			Points:      generatePoints(),
 		}
 		sets = append(sets, set)
 	}
 	series := seekpo.Series{
-		Measurement: "thermo",
-		Sets:        sets,
+		Sets: sets,
 	}
 	if err := writer.WriteSeries(ctx, series); err != nil {
 		return fmt.Errorf("write series failed: %s", err)
@@ -105,10 +108,10 @@ func readSeries(ctx context.Context, client influxdb2.Client) error {
 	series, err := reader.ReadSeries(ctx,
 		seekpo.Range{
 			Start: time.Date(2021, 10, 22, 0, 0, 0, 0, time.UTC),
-			End:   time.Date(2021, 10, 24, 0, 0, 0, 0, time.UTC),
+			End:   time.Date(2021, 10, 22, 3, 0, 0, 0, time.UTC),
 		},
-		[]seekpo.Measurement{"thermo"},
-		[]uuid.UUID{tags[0].ID},
+		[]seekpo.Measurement{"К1ТВ1"},
+		[]seekpo.Code{},
 	)
 	if err != nil {
 		return fmt.Errorf("read series failed: %s", err)

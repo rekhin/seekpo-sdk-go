@@ -3,25 +3,28 @@ package seekpo
 import (
 	"context"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Series struct {
+	Sets []Set
+}
+
+type Set struct {
 	Measurement Measurement
-	Sets        []Set
+	Code        Code
+	Unit        string
+	Type        Type
+	Points      []Point
 }
 
 type Measurement = string
 
-type Set struct {
-	ID     uuid.UUID
-	Points []Point
-}
+type Code = string
 
 type Point struct {
 	Timestamp time.Time
 	Value     Value
+	Status    Status
 }
 
 type SeriesWriter interface {
@@ -29,7 +32,7 @@ type SeriesWriter interface {
 }
 
 type LastSeriesReader interface {
-	ReadLastSeries(context.Context, []uuid.UUID) (Series, error)
+	ReadLastSeries(context.Context, []Measurement, []Code) (Series, error)
 }
 
 type Range struct {
@@ -38,5 +41,5 @@ type Range struct {
 }
 
 type SeriesReader interface {
-	ReadSeries(context.Context, Range, []Measurement, []uuid.UUID) (Series, error)
+	ReadSeries(context.Context, Range, []Measurement, []Code) (Series, error)
 }

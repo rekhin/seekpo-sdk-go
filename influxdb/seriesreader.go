@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 
 	"github.com/rekhin/seekpo-sdk-go"
@@ -32,12 +32,12 @@ func NewSeriesReader(client influxdb2.Client, org, bucket string) *SeriesReader 
 func (r *SeriesReader) ReadSeries(
 	ctx context.Context,
 	dateRange seekpo.Range,
-	measurement []seekpo.Measurement,
-	ids []uuid.UUID,
+	measurements []seekpo.Measurement,
+	codes []seekpo.Code,
 ) (seekpo.Series, error) {
-	sets := make([]seekpo.Set, len(ids))
+	sets := make([]seekpo.Set, 0, len(codes))
 	queryAPI := r.client.QueryAPI(r.orgName)
-	query := formatQuery(r.bucketName, dateRange, measurement, ids)
+	query := formatQuery(r.bucketName, dateRange, measurements, codes)
 	log.Printf("[INFO] query '%s' is made", query)
 	result, err := queryAPI.Query(ctx, query)
 	if err != nil {
@@ -46,13 +46,25 @@ func (r *SeriesReader) ReadSeries(
 	i := -1
 	for result.Next() {
 		if result.TableChanged() {
+			set := seekpo.Set{
+				Measurement: result.Record().Measurement(),
+				Code:        result.Record().Field(),
+				Unit:        result.Record().ValueByKey("unit").(string), // TODO panic
+				Type:        result.Record().ValueByKey("type").(string), // TODO panic
+			}
+			sets = append(sets, set)
 			i++
-			sets[i].ID = uuid.MustParse(result.Record().Field()) // TODO panic
+
+			log.Println(result.Record().Field())
+		}
+		status, err := strconv.ParseUint(result.Record().ValueByKey("status").(string), 10, 32) // TODO panic
+		if err != nil {
+			log.Printf("[WARNING] parse status failed: %s", err)
 		}
 		point := seekpo.Point{
 			Timestamp: result.Record().Time(),
 			Value:     result.Record().Value(),
-			// Status:    seekpo.Status(result.Record().Field()),
+			Status:    seekpo.Status(status),
 		}
 		sets[i].Points = append(sets[i].Points, point)
 	}
@@ -66,22 +78,18 @@ func formatQuery(
 	bucketName string,
 	dateRange seekpo.Range,
 	measurements []seekpo.Measurement,
-	ids []uuid.UUID,
+	fields []string,
 ) string {
 	from := fmt.Sprintf(`from(bucket: "%s")`, bucketName)
 	range_ := fmt.Sprintf(`|> range(start: %s, stop: %s)`,
 		dateRange.Start.Format(time.RFC3339Nano),
 		dateRange.End.Format(time.RFC3339Nano),
 	)
-	fields := make([]string, len(ids))
-	for i := range ids {
-		fields[i] = ids[i].String()
-	}
 	filters := []string{
 		formatFilter("_measurement", measurements),
 		formatFilter("_field", fields),
 	}
-	query := fmt.Sprintf(`%s %s %s`, from, range_, strings.Join(filters, " "))
+	query := strings.Join(append([]string{from, range_}, filters...), "")
 	return query
 }
 
