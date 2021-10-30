@@ -55,7 +55,7 @@ func (r *SeriesReader) ReadSeries(
 			sets = append(sets, set)
 			i++
 
-			log.Println(result.Record().Field())
+			// log.Println(result.Record().Field()) // TODO
 		}
 		status, err := strconv.ParseUint(result.Record().ValueByKey("status").(string), 16, 32) // TODO panic
 		if err != nil {
