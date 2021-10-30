@@ -35,7 +35,7 @@ func (w *SeriesWriter) WriteSeries(ctx context.Context, series seekpo.Series) er
 			point := influxdb2.NewPointWithMeasurement(series.Sets[i].Measurement).
 				SetTime(series.Sets[i].Points[j].Timestamp).
 				AddField(series.Sets[i].Code, series.Sets[i].Points[j].Value).
-				AddTag("status", strconv.FormatUint(uint64(series.Sets[i].Points[j].Status), 10)).
+				AddTag("status", strconv.FormatUint(uint64(series.Sets[i].Points[j].Status), 16)).
 				AddTag("unit", series.Sets[i].Unit).
 				AddTag("type", series.Sets[i].Type)
 			points = append(points, point)

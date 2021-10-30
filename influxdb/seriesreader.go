@@ -57,7 +57,7 @@ func (r *SeriesReader) ReadSeries(
 
 			log.Println(result.Record().Field())
 		}
-		status, err := strconv.ParseUint(result.Record().ValueByKey("status").(string), 10, 32) // TODO panic
+		status, err := strconv.ParseUint(result.Record().ValueByKey("status").(string), 16, 32) // TODO panic
 		if err != nil {
 			log.Printf("[WARNING] parse status failed: %s", err)
 		}

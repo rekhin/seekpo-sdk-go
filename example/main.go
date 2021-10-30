@@ -96,7 +96,7 @@ func generatePoints() []seekpo.Point {
 		point := seekpo.Point{
 			Timestamp: time.Date(2021, 10, 22, i, 0, 0, 0, time.UTC),
 			Value:     float32(rand.Intn(1500)) / 100,
-			// Status:    0,
+			Status:    seekpo.StatusGood,
 		}
 		points = append(points, point)
 	}
