@@ -19,7 +19,30 @@ func ParseType(s string) (Type, error) {
 	if t, ok := parseObjectType(s); ok {
 		return t, nil
 	}
-	return nil, fmt.Errorf("missing type: '%s'", s)
+	return nil, fmt.Errorf("invalid type: '%s'", s)
+}
+
+type PrimitiveType string
+
+const (
+	TypeBool    PrimitiveType = "bool"
+	TypeInt8    PrimitiveType = "i8"
+	TypeInt16   PrimitiveType = "i16"
+	TypeInt32   PrimitiveType = "i32"
+	TypeInt64   PrimitiveType = "i64"
+	TypeInt128  PrimitiveType = "i128"
+	TypeUint8   PrimitiveType = "u8"
+	TypeUint16  PrimitiveType = "u16"
+	TypeUint32  PrimitiveType = "u32"
+	TypeUint64  PrimitiveType = "u64"
+	TypeUInt128 PrimitiveType = "u128"
+	TypeFloat32 PrimitiveType = "f32"
+	TypeFloat64 PrimitiveType = "f64"
+	TypeString  PrimitiveType = "str"
+)
+
+func (t PrimitiveType) String() string {
+	return string(t)
 }
 
 func parsePrimitiveType(s string) (PrimitiveType, bool) {
@@ -60,6 +83,16 @@ func parsePrimitiveType(s string) (PrimitiveType, bool) {
 	return t, ok
 }
 
+type ArrayType struct {
+	t Type
+}
+
+const arrayPrefix = "[]"
+
+func (t ArrayType) String() string {
+	return fmt.Sprintf("%s%s", arrayPrefix, t.t)
+}
+
 func parseArrayType(s string) (ArrayType, bool) {
 	if ok := strings.HasPrefix(s, arrayPrefix); !ok {
 		return ArrayType{}, false
@@ -73,50 +106,17 @@ func parseArrayType(s string) (ArrayType, bool) {
 	}, false
 }
 
-func parseObjectType(s string) (ObjectType, bool) {
-	// TODO validate
-	return ObjectType{
-		s: s,
-	}, true
-}
-
-type PrimitiveType string
-
-const (
-	TypeBool    PrimitiveType = "bool"
-	TypeInt8    PrimitiveType = "i8"
-	TypeInt16   PrimitiveType = "i16"
-	TypeInt32   PrimitiveType = "i32"
-	TypeInt64   PrimitiveType = "i64"
-	TypeInt128  PrimitiveType = "i128"
-	TypeUint8   PrimitiveType = "u8"
-	TypeUint16  PrimitiveType = "u16"
-	TypeUint32  PrimitiveType = "u32"
-	TypeUint64  PrimitiveType = "u64"
-	TypeUInt128 PrimitiveType = "u128"
-	TypeFloat32 PrimitiveType = "f32"
-	TypeFloat64 PrimitiveType = "f64"
-	TypeString  PrimitiveType = "str"
-)
-
-func (t PrimitiveType) String() string {
-	return string(t)
-}
-
-type ArrayType struct {
-	t Type
-}
-
-const arrayPrefix = "[]"
-
-func (t ArrayType) String() string {
-	return fmt.Sprintf("%s%s", arrayPrefix, t.t)
-}
-
 type ObjectType struct {
 	s string
 }
 
 func (t ObjectType) String() string {
 	return t.s
+}
+
+func parseObjectType(s string) (ObjectType, bool) {
+	// TODO validate
+	return ObjectType{
+		s: s,
+	}, true
 }

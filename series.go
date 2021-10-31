@@ -1,3 +1,4 @@
+// TODO rename into 'skp'
 package seekpo
 
 import (
@@ -41,5 +42,6 @@ type Range struct {
 }
 
 type SeriesReader interface {
+	// TODO rework with filters (options)
 	ReadSeries(context.Context, Range, []Measurement, []Code) (Series, error)
 }
