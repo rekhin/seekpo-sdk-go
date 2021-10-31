@@ -43,30 +43,25 @@ func (r *SeriesReader) ReadSeries(
 	if err != nil {
 		return seekpo.Series{}, fmt.Errorf("query failed: %s", err)
 	}
-	i := -1
+	var previous int64 = -1
 	for result.Next() {
-		if result.TableChanged() {
+		current := assertInt64(result.Record().ValueByKey("table"))
+		if current != previous {
 			set := seekpo.Set{
 				Measurement: result.Record().Measurement(),
 				Code:        result.Record().Field(),
-				Unit:        result.Record().ValueByKey("unit").(string), // TODO panic
-				Type:        result.Record().ValueByKey("type").(string), // TODO panic
+				Unit:        assertString(result.Record().ValueByKey("unit")),
+				Type:        assertString(result.Record().ValueByKey("type")),
 			}
 			sets = append(sets, set)
-			i++
-
-			// log.Println(result.Record().Field()) // TODO
-		}
-		status, err := strconv.ParseUint(result.Record().ValueByKey("status").(string), 16, 32) // TODO panic
-		if err != nil {
-			log.Printf("[WARNING] parse status failed: %s", err)
+			previous = current
 		}
 		point := seekpo.Point{
 			Timestamp: result.Record().Time(),
 			Value:     result.Record().Value(),
-			Status:    seekpo.Status(status),
+			Status:    parseStatus(assertString(result.Record().ValueByKey("status"))),
 		}
-		sets[i].Points = append(sets[i].Points, point)
+		sets[current].Points = append(sets[current].Points, point)
 	}
 	if result.Err() != nil {
 		return seekpo.Series{}, fmt.Errorf("next failed: %s", result.Err())
@@ -108,4 +103,22 @@ func formatConditions(s string, ss []string) []string {
 		conditions[i] = fmt.Sprintf(`r.%s == "%s"`, s, ss[i])
 	}
 	return conditions
+}
+
+func assertInt64(v interface{}) int64 {
+	i, _ := v.(int64)
+	return i
+}
+
+func assertString(v interface{}) string {
+	s, _ := v.(string)
+	return s
+}
+
+func parseStatus(s string) seekpo.Status {
+	i, err := strconv.ParseUint(s, 16, 32) // TODO panic
+	if err != nil {
+		log.Printf("[WARNING] parse status failed: %s", err)
+	}
+	return seekpo.Status(i)
 }

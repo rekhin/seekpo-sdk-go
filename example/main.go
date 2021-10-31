@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	orgName    = "my-org"
+	orgName    = "seekpo"
 	bucketName = "PT1H"
 )
 
@@ -63,6 +63,12 @@ var tags = []seekpo.Tag{
 		Code:        "pressure",
 		Name:        "Давление",
 		Unit:        "mm Hg",
+		Type:        seekpo.TypeFloat32,
+	},
+	{
+		Measurement: "К1ТВ1",
+		Code:        "density",
+		Name:        "Плотность",
 		Type:        seekpo.TypeFloat32,
 	},
 }
