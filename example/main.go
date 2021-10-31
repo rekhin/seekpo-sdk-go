@@ -114,7 +114,7 @@ func readSeries(ctx context.Context, client influxdb2.Client) error {
 	series, err := reader.ReadSeries(ctx,
 		seekpo.Range{
 			Start: time.Date(2021, 10, 22, 0, 0, 0, 0, time.UTC),
-			End:   time.Date(2021, 10, 22, 3, 0, 0, 0, time.UTC),
+			End:   time.Date(2021, 10, 23, 0, 0, 0, 0, time.UTC),
 		},
 		[]seekpo.Measurement{"К1ТВ1"},
 		[]seekpo.Code{},

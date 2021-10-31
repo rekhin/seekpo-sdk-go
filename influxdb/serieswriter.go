@@ -27,6 +27,7 @@ func NewSeriesWriter(client influxdb2.Client, org, bucket string) *SeriesWriter 
 	}
 }
 
+// TODO Сделать запись массивов и объектов помимо примитивных типов
 func (w *SeriesWriter) WriteSeries(ctx context.Context, series seekpo.Series) error {
 	writeAPI := w.client.WriteAPIBlocking(w.orgName, w.bucketName)
 	points := []*write.Point{}
@@ -35,9 +36,9 @@ func (w *SeriesWriter) WriteSeries(ctx context.Context, series seekpo.Series) er
 			point := influxdb2.NewPointWithMeasurement(series.Sets[i].Measurement).
 				SetTime(series.Sets[i].Points[j].Timestamp).
 				AddField(series.Sets[i].Code, series.Sets[i].Points[j].Value).
-				AddTag("status", strconv.FormatUint(uint64(series.Sets[i].Points[j].Status), 16)).
+				AddTag("status", strconv.FormatUint(uint64(series.Sets[i].Points[j].Status), statusBase)).
 				AddTag("unit", series.Sets[i].Unit).
-				AddTag("type", series.Sets[i].Type)
+				AddTag("type", series.Sets[i].Type.String())
 			points = append(points, point)
 		}
 	}

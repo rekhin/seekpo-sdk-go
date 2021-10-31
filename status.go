@@ -1,5 +1,10 @@
 package seekpo
 
+import (
+	"log"
+	"strconv"
+)
+
 type Status uint32
 
 const (
@@ -265,3 +270,11 @@ const (
 	StatusGoodInitiateFaultState                                          Status = 0x04080000 // A fault state condition is being requested of the destination.
 	StatusGoodCascade                                                     Status = 0x04090000 // The value is accurate, and the signal source supports cascade handshaking.
 )
+
+func ParseStatus(s string, base int) Status {
+	i, err := strconv.ParseUint(s, base, 32) // TODO panic
+	if err != nil {
+		log.Printf("[WARNING] parse status failed: %s", err)
+	}
+	return Status(i)
+}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
 	"time"
 
@@ -47,11 +46,15 @@ func (r *SeriesReader) ReadSeries(
 	for result.Next() {
 		current := assertInt64(result.Record().ValueByKey("table"))
 		if current != previous {
+			type_, err := seekpo.ParseType(assertString(result.Record().ValueByKey("type")))
+			if err != nil {
+				return seekpo.Series{}, fmt.Errorf("parse type failed: %s", err)
+			}
 			set := seekpo.Set{
 				Measurement: result.Record().Measurement(),
 				Code:        result.Record().Field(),
 				Unit:        assertString(result.Record().ValueByKey("unit")),
-				Type:        assertString(result.Record().ValueByKey("type")),
+				Type:        type_,
 			}
 			sets = append(sets, set)
 			previous = current
@@ -59,7 +62,7 @@ func (r *SeriesReader) ReadSeries(
 		point := seekpo.Point{
 			Timestamp: result.Record().Time(),
 			Value:     result.Record().Value(),
-			Status:    parseStatus(assertString(result.Record().ValueByKey("status"))),
+			Status:    seekpo.ParseStatus(assertString(result.Record().ValueByKey("status")), statusBase),
 		}
 		sets[current].Points = append(sets[current].Points, point)
 	}
@@ -113,12 +116,4 @@ func assertInt64(v interface{}) int64 {
 func assertString(v interface{}) string {
 	s, _ := v.(string)
 	return s
-}
-
-func parseStatus(s string) seekpo.Status {
-	i, err := strconv.ParseUint(s, 16, 32) // TODO panic
-	if err != nil {
-		log.Printf("[WARNING] parse status failed: %s", err)
-	}
-	return seekpo.Status(i)
 }
