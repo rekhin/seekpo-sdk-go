@@ -53,6 +53,8 @@
 //                 ├── Density=floa64
 //                 └── MassFlow=floa64
 
+// See https://github.com/OPCFoundation/UA-.NETStandard-Samples/blob/master/Samples/Opc.Ua.Sample/Boiler/BoilerDesign.xml
+
 package main
 
 type HotWaterSupply struct {
@@ -61,8 +63,8 @@ type HotWaterSupply struct {
 }
 
 type Pipe struct {
-	Inpup  Input
-	Output Output
+	Input
+	Output
 }
 
 type Input struct {
